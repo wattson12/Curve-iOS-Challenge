@@ -33,12 +33,12 @@ final class AppCoordinator {
 }
 
 protocol MovieListViewControllerCoordinationDelegate: class {
-    func didSelect(movie: String, atIndexPath indexPath: IndexPath)
+    func didSelect(movie: Movie, atIndexPath indexPath: IndexPath)
 }
 
 extension AppCoordinator: MovieListViewControllerCoordinationDelegate {
 
-    func didSelect(movie: String, atIndexPath indexPath: IndexPath) {
+    func didSelect(movie: Movie, atIndexPath indexPath: IndexPath) {
         let movieDetailViewController = MovieDetailViewController()
         navigationController?.pushViewController(movieDetailViewController, animated: true)
     }

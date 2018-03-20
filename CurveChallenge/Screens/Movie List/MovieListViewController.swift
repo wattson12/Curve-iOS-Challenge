@@ -49,17 +49,17 @@ final class MovieListViewModel {
         self.dataProvider = dataProvider
     }
 
-    func fetchCreditScore() {
+    func fetchNextPage() {
 
         dataProvider
             .fetchData(fromURL: .popularMovies(forPage: 1))
-            .subscribe()
+            .convert(to: APIResult<Movie>.self)
+            .observeOn(MainScheduler.instance) //UI triggers are based off of the creditReport relay so move back to main thread here
+            .subscribe(onNext: { [unowned self] result in
+                let allMovies = self.movies.value + result.results
+                self.movies.accept(allMovies)
+            })
             .disposed(by: disposeBag)
-//            .convertToCreditReportInfo()
-//            .wrapInState() //convert to a state type so we can bind to the credit report relay
-//            .observeOn(MainScheduler.instance) //UI triggers are based off of the creditReport relay so move back to main thread here
-//            .bind(to: creditReport)
-//            .disposed(by: disposeBag)
     }
 }
 
@@ -88,37 +88,45 @@ final class MovieListViewController: BaseViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        tableView.dataSource = self
-        tableView.delegate = self
-    }
-}
-
-extension MovieListViewController: UITableViewDataSource, UITableViewDelegate {
-
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 1
+        setupBindings()
     }
 
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(MovieTableViewCell.self, forIndexPath: indexPath)
+    private func setupBindings() {
 
-        let viewState = MovieTableViewCell.ViewState(
-            imageURL: URL(string: "https://image.tmdb.org/t/p/w500//sM33SANp9z6rXW8Itn7NnG1GOEs.jpg"),
-            name: "Zootopia",
-            date: "2016-02-11",
-            favourited: true,
-            overview: "Determined to prove herself, Officer Judy Hopps, the first bunny on Zootopia's police force, jumps at the chance to crack her first case - even if it means partnering with scam-artist fox Nick Wilde to solve the mystery.",
-            rating: NSAttributedString(string: "77%", attributes: [.foregroundColor: UIColor.red])
-        )
+        viewModel
+            .titleLocalizedStringKey.asObservable()
+            .map { NSLocalizedString($0, comment: "") }
+            .bind(to: self.navigationItem.rx.title)
+            .disposed(by: disposeBag)
 
-        cell.viewState = viewState
+        viewModel
+            .movies.asObservable()
+            .bind(to: tableView.rx.items(cellIdentifier: MovieTableViewCell.reuseIdentifier)) { (_, movie: Movie, cell: MovieTableViewCell) in
+                let viewState = MovieTableViewCell.ViewState(
+                    imageURL: URL.poster(withPath: movie.posterPath),
+                    name: movie.originalTitle,
+                    date: movie.releaseDate.description,
+                    favourited: false,
+                    overview: movie.overview,
+                    rating: NSAttributedString(string: movie.voteAverage.description, attributes: [.foregroundColor: UIColor.red])
+                )
+                cell.viewState = viewState
+            }
+            .disposed(by: disposeBag)
 
-        return cell
+        tableView.rx
+            .itemSelected
+            .map { [unowned self] indexPath -> (Movie, IndexPath) in
+                return (self.viewModel.movies.value[indexPath.row], indexPath) //include index path and model item
+            }.subscribe(onNext: { movie, indexPath in
+                self.coordinationDelegate?.didSelect(movie: movie, atIndexPath: indexPath)
+            })
+            .disposed(by: disposeBag)
     }
 
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true)
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
 
-        coordinationDelegate?.didSelect(movie: "test", atIndexPath: indexPath)
+        viewModel.fetchNextPage()
     }
 }
