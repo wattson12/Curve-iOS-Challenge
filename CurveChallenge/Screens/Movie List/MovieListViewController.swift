@@ -11,6 +11,24 @@ import Kingfisher
 import RxSwift
 import RxCocoa
 
+extension NSAttributedString {
+
+    convenience init(rating: Double) {
+        let color: UIColor
+        switch rating {
+        case 7...:
+            color = .highRating
+        case 4..<7:
+            color = .mediumRating
+        default:
+            color = .lowRating
+        }
+
+        let formattedRating = String(format: "%i%%", Int(rating * 10))
+        self.init(string: formattedRating, attributes: [.foregroundColor: color])
+    }
+}
+
 final class MovieListViewController: BaseViewController {
 
     private let viewModel: MovieListViewModel
@@ -26,6 +44,7 @@ final class MovieListViewController: BaseViewController {
         let tableView = UITableView(frame: .zero, style: .plain)
         tableView.registerReusableCell(MovieTableViewCell.self)
         tableView.rowHeight = 200
+        tableView.backgroundColor = .background
         return tableView
     }()
 
@@ -59,7 +78,7 @@ final class MovieListViewController: BaseViewController {
                     date: movie.releaseDate.description,
                     favourited: self.viewModel.isMovieFavourited(movie),
                     overview: movie.overview,
-                    rating: NSAttributedString(string: movie.voteAverage.description, attributes: [.foregroundColor: UIColor.red])
+                    rating: NSAttributedString(rating: movie.voteAverage)
                 )
                 cell.viewState = viewState
 

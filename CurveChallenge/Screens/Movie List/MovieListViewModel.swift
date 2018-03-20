@@ -30,6 +30,7 @@ final class MovieListViewModel {
     }
 
     func fetchNextPage() {
+        guard canLoadMorePages.value else { return }
 
         dataProvider
             .fetchData(fromURL: .popularMovies(forPage: currentPage))
