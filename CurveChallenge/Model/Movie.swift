@@ -25,3 +25,10 @@ struct Movie: Decodable {
     let overview: String
     let voteAverage: Double
 }
+
+extension Movie: Equatable {
+
+    static func == (lhs: Movie, rhs: Movie) -> Bool {
+        return lhs.identifier == rhs.identifier
+    }
+}

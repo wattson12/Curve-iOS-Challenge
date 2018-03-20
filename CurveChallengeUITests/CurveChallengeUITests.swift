@@ -22,15 +22,15 @@ class CurveChallengeUITests: XCTestCase {
 
         // In UI tests it’s important to set the initial state - such as interface orientation - required for your tests before they run. The setUp method is a good place to do this.
     }
-    
-    override func tearDown() {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-        super.tearDown()
-    }
-    
-    func testExample() {
-        // Use recording to get started writing UI tests.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
+
+    //this is not a good test since it uses the real network, but I didnt have time to implement test based network stubbing
+    func testNavigation() {
+        let app = XCUIApplication()
+
+        XCTAssertTrue(app.staticTexts["Zootopia"].waitForExistence(timeout: 2))
+        app.staticTexts["Zootopia"].tap()
+
+        XCTAssertTrue(app.images["full_size_poster_view"].waitForExistence(timeout: 1))
     }
     
 }

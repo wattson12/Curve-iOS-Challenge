@@ -24,6 +24,7 @@ final class MovieDetailViewController: BaseViewController {
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.layer.borderColor = UIColor.white.cgColor
         imageView.layer.borderWidth = 5
+        imageView.accessibilityIdentifier = "full_size_poster_view"
         return imageView
     }()
 

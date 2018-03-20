@@ -11,15 +11,17 @@ import Kingfisher
 import RxSwift
 import RxCocoa
 
-extension UIColor { //TODO: remove
+extension MovieTableViewCell.ViewState {
 
-    class var random: UIColor {
-
-        let hue = ( Double(Double(arc4random()).truncatingRemainder(dividingBy: 256.0) ) / 256.0 )
-        let saturation = ( (Double(arc4random()).truncatingRemainder(dividingBy: 128)) / 256.0 ) + 0.5
-        let brightness = ( (Double(arc4random()).truncatingRemainder(dividingBy: 128)) / 256.0 ) + 0.5
-
-        return UIColor(hue: CGFloat(hue), saturation: CGFloat(saturation), brightness: CGFloat(brightness), alpha: 1.0)
+    init(movie: Movie, isFavourited: Bool) {
+        self.init(
+            imageURL: URL.poster(withPath: movie.posterPath),
+            name: movie.originalTitle,
+            date: DateFormatter.releaseDateDisplay.string(from: movie.releaseDate),
+            favourited: isFavourited,
+            overview: movie.overview,
+            rating: NSAttributedString(rating: movie.voteAverage)
+        )
     }
 }
 
@@ -38,11 +40,16 @@ final class MovieListViewController: BaseViewController {
         let tableView = UITableView(frame: .zero, style: .plain)
         tableView.registerReusableCell(MovieTableViewCell.self)
         tableView.rowHeight = 200
+        tableView.backgroundColor = .background
+        tableView.separatorStyle = .none
         return tableView
     }()
 
+    let loadMoreFooterView = LoadMoreFooterView()
+
     override func loadView() {
         self.view = tableView
+        tableView.tableFooterView = loadMoreFooterView
     }
 
     override func viewDidLoad() {
@@ -53,27 +60,27 @@ final class MovieListViewController: BaseViewController {
 
     private func setupBindings() {
 
+        //bind title to navigation item (via localisation)
         viewModel
             .titleLocalizedStringKey.asObservable()
             .map { NSLocalizedString($0, comment: "") }
             .bind(to: self.navigationItem.rx.title)
             .disposed(by: disposeBag)
 
+        //setup data source for table view and configure cells
         viewModel
             .movies.asObservable()
-            .bind(to: tableView.rx.items(cellIdentifier: MovieTableViewCell.reuseIdentifier)) { (_, movie: Movie, cell: MovieTableViewCell) in
-                let viewState = MovieTableViewCell.ViewState(
-                    imageURL: URL.poster(withPath: movie.posterPath),
-                    name: movie.originalTitle,
-                    date: movie.releaseDate.description,
-                    favourited: false,
-                    overview: movie.overview,
-                    rating: NSAttributedString(string: movie.voteAverage.description, attributes: [.foregroundColor: UIColor.red])
-                )
-                cell.viewState = viewState
+            .bind(to: tableView.rx.items(cellIdentifier: MovieTableViewCell.reuseIdentifier)) { [unowned self] (_, movie: Movie, cell: MovieTableViewCell) in
+                cell.viewState = MovieTableViewCell.ViewState(movie: movie, isFavourited: self.viewModel.isMovieFavourited(movie))
+
+                //add binding for buttons
+                cell.favouriteButton.rx.tap.subscribe(onNext: {
+                    self.viewModel.toggleFavourite(forMovie: movie)
+                }).disposed(by: cell.disposeBag)
             }
             .disposed(by: disposeBag)
 
+        //listen for cell selection
         tableView.rx
             .itemSelected
             .map { [unowned self] indexPath -> (Movie, IndexPath) in
@@ -82,11 +89,29 @@ final class MovieListViewController: BaseViewController {
                 self.coordinationDelegate?.didSelect(movie: movie, atIndexPath: indexPath)
             })
             .disposed(by: disposeBag)
+
+        //fetch next page when load more button is tapped
+        loadMoreFooterView
+            .loadMoreButton.rx
+            .tap
+            .subscribe(onNext: { [unowned self] in
+                self.viewModel.fetchNextPage()
+            })
+            .disposed(by: disposeBag)
+
+        //hide load more button when there are no more pages to fetch
+        viewModel
+            .canLoadMorePages
+            .map { !$0 } //negate so we hide button when no pages can be loaded
+            .observeOn(MainScheduler.instance)
+            .bind(to: loadMoreFooterView.rx.isHidden) //this isnt the best solution but its a good quick one (there is still an issue with table offset when the footer is removed)
+            .disposed(by: disposeBag)
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
+        //fetch the first page on first load
         viewModel.fetchNextPage()
     }
 }

@@ -30,6 +30,18 @@ struct StubDataProvider: DataProvider {
     }
 }
 
+class MockUserDefaults: UserDefaults {
+
+    convenience init() {
+        self.init(suiteName: #file)!
+    }
+
+    override init?(suiteName suitename: String?) {
+        UserDefaults().removePersistentDomain(forName: suitename!)
+        super.init(suiteName: suitename)
+    }
+
+}
 
 class MovieListViewModelTests: XCTestCase {
     
@@ -70,6 +82,35 @@ class MovieListViewModelTests: XCTestCase {
         let viewModel = MovieListViewModel(dataProvider: dataProvider)
 
         XCTAssertEqual(viewModel.titleLocalizedStringKey.value, "popular_movie_list_title")
+    }
+
+    func testFavouringTestChecksUserDefaultsUsingIdentifierOfMovie() {
+        let userDefaults = MockUserDefaults()
+        let dataProvider = StubDataProvider(stubbedData: nil, stubbedError: nil)
+        let viewModel = MovieListViewModel(dataProvider: dataProvider, favouriteStore: userDefaults)
+
+        XCTAssertFalse(viewModel.isMovieFavourited(Movie(identifier: 1, originalTitle: "", releaseDate: Date(), posterPath: "", overview: "", voteAverage: 0)))
+
+        userDefaults.set(true, forKey: "2")
+        XCTAssertTrue(viewModel.isMovieFavourited(Movie(identifier: 2, originalTitle: "", releaseDate: Date(), posterPath: "", overview: "", voteAverage: 0)))
+    }
+
+    func testTogglingUpdatesUserDefaultsAndFiresObservable() {
+        let userDefaults = MockUserDefaults()
+        let dataProvider = StubDataProvider(stubbedData: nil, stubbedError: nil)
+        let viewModel = MovieListViewModel(dataProvider: dataProvider, favouriteStore: userDefaults)
+
+        let observableFired = expectation(description: "observable fired")
+        viewModel.movies.skip(1).asObservable().subscribe(onNext: { movies in
+            observableFired.fulfill()
+        }).disposed(by: disposeBag)
+
+        let movie = Movie(identifier: 1, originalTitle: "", releaseDate: Date(), posterPath: "", overview: "", voteAverage: 0)
+        XCTAssertFalse(viewModel.isMovieFavourited(movie))
+        viewModel.toggleFavourite(forMovie: movie)
+        XCTAssertTrue(viewModel.isMovieFavourited(movie))
+
+        waitForExpectations(timeout: 0.1)
     }
     
 }
