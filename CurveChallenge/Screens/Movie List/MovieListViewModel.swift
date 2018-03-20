@@ -12,10 +12,10 @@ import RxCocoa
 
 final class MovieListViewModel {
 
-    let disposeBag = DisposeBag()
+    private let disposeBag = DisposeBag()
 
-    let dataProvider: DataProvider
-    let favouriteStore: UserDefaults
+    private let dataProvider: DataProvider
+    private let favouriteStore: UserDefaults
 
     let titleLocalizedStringKey: BehaviorRelay<String> = BehaviorRelay(value: "popular_movie_list_title")
 

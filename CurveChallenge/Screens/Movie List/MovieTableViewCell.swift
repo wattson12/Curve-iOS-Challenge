@@ -41,12 +41,14 @@ final class MovieTableViewCell: UITableViewCell {
     let nameLabel: UILabel = {
         let nameLabel = UILabel()
         nameLabel.translatesAutoresizingMaskIntoConstraints = false
+        nameLabel.font = .movieTitle
         return nameLabel
     }()
 
     let dateLabel: UILabel = {
         let dateLabel = UILabel()
         dateLabel.translatesAutoresizingMaskIntoConstraints = false
+        dateLabel.font = .date
         return dateLabel
     }()
 
@@ -61,6 +63,8 @@ final class MovieTableViewCell: UITableViewCell {
         overviewLabel.numberOfLines = 0
         overviewLabel.translatesAutoresizingMaskIntoConstraints = false
         overviewLabel.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
+        overviewLabel.setContentHuggingPriority(.defaultLow, for: .vertical)
+        overviewLabel.font = .overview
         return overviewLabel
     }()
 
@@ -87,7 +91,7 @@ final class MovieTableViewCell: UITableViewCell {
             movieImageView.topAnchor.constraint(equalTo: self.contentView.topAnchor),
             movieImageView.bottomAnchor.constraint(equalTo: self.contentView.bottomAnchor),
             movieImageView.widthAnchor.constraint(equalTo: movieImageView.heightAnchor, multiplier: 2 / 3)
-            ])
+        ])
 
         //name and date label at top left, favourites to the right
         NSLayoutConstraint.activate([
@@ -97,25 +101,25 @@ final class MovieTableViewCell: UITableViewCell {
             dateLabel.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
             dateLabel.topAnchor.constraint(equalTo: nameLabel.lastBaselineAnchor, constant: 5),
             dateLabel.trailingAnchor.constraint(lessThanOrEqualTo: favouriteButton.leadingAnchor, constant: -10),
-            favouriteButton.topAnchor.constraint(equalTo: nameLabel.topAnchor),
+            favouriteButton.topAnchor.constraint(equalTo: self.contentView.topAnchor, constant: 10),
             favouriteButton.trailingAnchor.constraint(equalTo: self.contentView.trailingAnchor, constant: -10),
             favouriteButton.widthAnchor.constraint(equalToConstant: 44),
             favouriteButton.heightAnchor.constraint(equalToConstant: 44)
-            ])
+        ])
 
         //overview below those, but above rating
         NSLayoutConstraint.activate([
             overviewLabel.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
             overviewLabel.trailingAnchor.constraint(lessThanOrEqualTo: self.contentView.trailingAnchor, constant: -10),
-            overviewLabel.topAnchor.constraint(greaterThanOrEqualTo: favouriteButton.bottomAnchor, constant: 10),
+            overviewLabel.topAnchor.constraint(equalTo: favouriteButton.bottomAnchor, constant: 10).withPriority(.required),
             overviewLabel.bottomAnchor.constraint(lessThanOrEqualTo: ratingLabel.topAnchor, constant: -10).withPriority(.required)
-            ])
+        ])
 
         //rating at the bottom right
         NSLayoutConstraint.activate([
             ratingLabel.trailingAnchor.constraint(equalTo: self.contentView.trailingAnchor, constant: -10),
             ratingLabel.bottomAnchor.constraint(equalTo: self.contentView.bottomAnchor, constant: -10)
-            ])
+        ])
     }
 
     override func prepareForReuse() {
@@ -123,6 +127,10 @@ final class MovieTableViewCell: UITableViewCell {
 
         viewState = nil
         disposeBag = DisposeBag() //reset this to clear any observers
+
+        self.setNeedsUpdateConstraints()
+        self.setNeedsLayout()
+        self.invalidateIntrinsicContentSize()
     }
 
     var viewState: ViewState? {
@@ -143,6 +151,8 @@ final class MovieTableViewCell: UITableViewCell {
         favouriteButton.backgroundColor = .red
         overviewLabel.text = nil
         ratingLabel.attributedText = nil
+
+        [nameLabel, dateLabel, favouriteButton, overviewLabel, ratingLabel].forEach { $0.invalidateIntrinsicContentSize() }
     }
 
     private func updateContents(withViewState viewState: ViewState) {
@@ -152,5 +162,7 @@ final class MovieTableViewCell: UITableViewCell {
         favouriteButton.backgroundColor = viewState.favourited ? .green : .red
         overviewLabel.text = viewState.overview
         ratingLabel.attributedText = viewState.rating
+
+        [nameLabel, dateLabel, favouriteButton, overviewLabel, ratingLabel].forEach { $0.invalidateIntrinsicContentSize() }
     }
 }

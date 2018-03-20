@@ -11,21 +11,17 @@ import Kingfisher
 import RxSwift
 import RxCocoa
 
-extension NSAttributedString {
+extension MovieTableViewCell.ViewState {
 
-    convenience init(rating: Double) {
-        let color: UIColor
-        switch rating {
-        case 7...:
-            color = .highRating
-        case 4..<7:
-            color = .mediumRating
-        default:
-            color = .lowRating
-        }
-
-        let formattedRating = String(format: "%i%%", Int(rating * 10))
-        self.init(string: formattedRating, attributes: [.foregroundColor: color])
+    init(movie: Movie, isFavourited: Bool) {
+        self.init(
+            imageURL: URL.poster(withPath: movie.posterPath),
+            name: movie.originalTitle,
+            date: DateFormatter.releaseDateDisplay.string(from: movie.releaseDate),
+            favourited: isFavourited,
+            overview: movie.overview,
+            rating: NSAttributedString(rating: movie.voteAverage)
+        )
     }
 }
 
@@ -45,6 +41,7 @@ final class MovieListViewController: BaseViewController {
         tableView.registerReusableCell(MovieTableViewCell.self)
         tableView.rowHeight = 200
         tableView.backgroundColor = .background
+        tableView.separatorStyle = .none
         return tableView
     }()
 
@@ -63,24 +60,18 @@ final class MovieListViewController: BaseViewController {
 
     private func setupBindings() {
 
+        //bind title to navigation item (via localisation)
         viewModel
             .titleLocalizedStringKey.asObservable()
             .map { NSLocalizedString($0, comment: "") }
             .bind(to: self.navigationItem.rx.title)
             .disposed(by: disposeBag)
 
+        //setup data source for table view and configure cells
         viewModel
             .movies.asObservable()
             .bind(to: tableView.rx.items(cellIdentifier: MovieTableViewCell.reuseIdentifier)) { [unowned self] (_, movie: Movie, cell: MovieTableViewCell) in
-                let viewState = MovieTableViewCell.ViewState(
-                    imageURL: URL.poster(withPath: movie.posterPath),
-                    name: movie.originalTitle,
-                    date: movie.releaseDate.description,
-                    favourited: self.viewModel.isMovieFavourited(movie),
-                    overview: movie.overview,
-                    rating: NSAttributedString(rating: movie.voteAverage)
-                )
-                cell.viewState = viewState
+                cell.viewState = MovieTableViewCell.ViewState(movie: movie, isFavourited: self.viewModel.isMovieFavourited(movie))
 
                 //add binding for buttons
                 cell.favouriteButton.rx.tap.subscribe(onNext: {
@@ -89,6 +80,7 @@ final class MovieListViewController: BaseViewController {
             }
             .disposed(by: disposeBag)
 
+        //listen for cell selection
         tableView.rx
             .itemSelected
             .map { [unowned self] indexPath -> (Movie, IndexPath) in
@@ -98,6 +90,7 @@ final class MovieListViewController: BaseViewController {
             })
             .disposed(by: disposeBag)
 
+        //fetch next page when load more button is tapped
         loadMoreFooterView
             .loadMoreButton.rx
             .tap
@@ -106,6 +99,7 @@ final class MovieListViewController: BaseViewController {
             })
             .disposed(by: disposeBag)
 
+        //hide load more button when there are no more pages to fetch
         viewModel
             .canLoadMorePages
             .map { !$0 } //negate so we hide button when no pages can be loaded
@@ -117,6 +111,7 @@ final class MovieListViewController: BaseViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
+        //fetch the first page on first load
         viewModel.fetchNextPage()
     }
 }
