@@ -1,0 +1,6 @@
+excluded: # ignoring external code and tests
+  - Pods
+  - CurveChallengeTests
+  - CurveChallengeUITests
+
+line_length: 200
