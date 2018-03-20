@@ -1,0 +1,21 @@
+{
+  "vote_count": 6579,
+  "id": 269149,
+  "video": false,
+  "vote_average": 7.7,
+  "title": "Zootopia",
+  "popularity": 416.870415,
+  "poster_path": "\/sM33SANp9z6rXW8Itn7NnG1GOEs.jpg",
+  "original_language": "en",
+  "original_title": "Zootopia",
+  "genre_ids": [
+    16,
+    12,
+    10751,
+    35
+  ],
+  "backdrop_path": "\/mhdeE1yShHTaDbJVdWyTlzFvNkr.jpg",
+  "adult": false,
+  "overview": "Determined to prove herself, Officer Judy Hopps, the first bunny on Zootopia's police force, jumps at the chance to crack her first case - even if it means partnering with scam-artist fox Nick Wilde to solve the mystery.",
+  "release_date": "2016-02-11"
+}
