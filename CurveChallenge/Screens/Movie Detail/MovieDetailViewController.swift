@@ -11,15 +11,6 @@ import Kingfisher
 import RxSwift
 import RxCocoa
 
-final class MovieDetailViewModel {
-
-    let movie: BehaviorRelay<Movie>
-
-    init(movie: Movie) {
-        self.movie = BehaviorRelay(value: movie)
-    }
-}
-
 final class MovieDetailViewController: BaseViewController {
 
     let backgroundView: UIView = {
