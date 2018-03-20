@@ -22,7 +22,7 @@ final class AppCoordinator {
     }
 
     func start() {
-        let rootViewController = MovieListViewController(coordinationDelegate: self)
+        let rootViewController = MovieListViewController(viewModel: MovieListViewModel(), coordinationDelegate: self)
         let rootNavigationController = UINavigationController(rootViewController: rootViewController)
 
         window.rootViewController = rootNavigationController

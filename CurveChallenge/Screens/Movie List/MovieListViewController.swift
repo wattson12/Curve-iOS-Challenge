@@ -8,6 +8,8 @@
 
 import UIKit
 import Kingfisher
+import RxSwift
+import RxCocoa
 
 extension UIColor { //TODO: remove
 
@@ -21,11 +23,53 @@ extension UIColor { //TODO: remove
     }
 }
 
+//this is an abstraction around URLSession which will help testing view models
+protocol DataProvider {
+    func fetchData(fromURL url: URL) -> Observable<Data>
+}
+
+//URLSession is the easiest way, build on existing Rx extensions to add conformance
+extension URLSession: DataProvider {
+
+    func fetchData(fromURL url: URL) -> Observable<Data> {
+        return self.rx.data(request: URLRequest(url: url))
+    }
+}
+
+final class MovieListViewModel {
+
+    let disposeBag = DisposeBag()
+
+    let dataProvider: DataProvider
+
+    let movies: BehaviorRelay<[Movie]> = BehaviorRelay(value: [])
+    let titleLocalizedStringKey: BehaviorRelay<String> = BehaviorRelay(value: "popular_movie_list_title")
+
+    init(dataProvider: DataProvider = URLSession.shared) {
+        self.dataProvider = dataProvider
+    }
+
+    func fetchCreditScore() {
+
+        dataProvider
+            .fetchData(fromURL: .popularMovies(forPage: 1))
+            .subscribe()
+            .disposed(by: disposeBag)
+//            .convertToCreditReportInfo()
+//            .wrapInState() //convert to a state type so we can bind to the credit report relay
+//            .observeOn(MainScheduler.instance) //UI triggers are based off of the creditReport relay so move back to main thread here
+//            .bind(to: creditReport)
+//            .disposed(by: disposeBag)
+    }
+}
+
 final class MovieListViewController: BaseViewController {
 
+    private let viewModel: MovieListViewModel
     weak private var coordinationDelegate: MovieListViewControllerCoordinationDelegate?
 
-    init(coordinationDelegate: MovieListViewControllerCoordinationDelegate) {
+    init(viewModel: MovieListViewModel, coordinationDelegate: MovieListViewControllerCoordinationDelegate) {
+        self.viewModel = viewModel
         self.coordinationDelegate = coordinationDelegate
         super.init()
     }
