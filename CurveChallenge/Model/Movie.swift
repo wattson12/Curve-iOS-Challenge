@@ -28,7 +28,7 @@ struct Movie: Decodable {
 
 extension Movie: Equatable {
 
-    static func ==(lhs: Movie, rhs: Movie) -> Bool {
+    static func == (lhs: Movie, rhs: Movie) -> Bool {
         return lhs.identifier == rhs.identifier
     }
 }

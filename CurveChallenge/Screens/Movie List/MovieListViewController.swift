@@ -11,18 +11,6 @@ import Kingfisher
 import RxSwift
 import RxCocoa
 
-extension UIColor { //TODO: remove
-
-    class var random: UIColor {
-
-        let hue = ( Double(Double(arc4random()).truncatingRemainder(dividingBy: 256.0) ) / 256.0 )
-        let saturation = ( (Double(arc4random()).truncatingRemainder(dividingBy: 128)) / 256.0 ) + 0.5
-        let brightness = ( (Double(arc4random()).truncatingRemainder(dividingBy: 128)) / 256.0 ) + 0.5
-
-        return UIColor(hue: CGFloat(hue), saturation: CGFloat(saturation), brightness: CGFloat(brightness), alpha: 1.0)
-    }
-}
-
 final class MovieListViewController: BaseViewController {
 
     private let viewModel: MovieListViewModel
@@ -41,8 +29,11 @@ final class MovieListViewController: BaseViewController {
         return tableView
     }()
 
+    let loadMoreFooterView = LoadMoreFooterView()
+
     override func loadView() {
         self.view = tableView
+        tableView.tableFooterView = loadMoreFooterView
     }
 
     override func viewDidLoad() {
@@ -86,6 +77,21 @@ final class MovieListViewController: BaseViewController {
             }.subscribe(onNext: { movie, indexPath in
                 self.coordinationDelegate?.didSelect(movie: movie, atIndexPath: indexPath)
             })
+            .disposed(by: disposeBag)
+
+        loadMoreFooterView
+            .loadMoreButton.rx
+            .tap
+            .subscribe(onNext: { [unowned self] in
+                self.viewModel.fetchNextPage()
+            })
+            .disposed(by: disposeBag)
+
+        viewModel
+            .canLoadMorePages
+            .map { !$0 } //negate so we hide button when no pages can be loaded
+            .observeOn(MainScheduler.instance)
+            .bind(to: loadMoreFooterView.rx.isHidden) //this isnt the best solution but its a good quick one (there is still an issue with table offset when the footer is removed)
             .disposed(by: disposeBag)
     }
 

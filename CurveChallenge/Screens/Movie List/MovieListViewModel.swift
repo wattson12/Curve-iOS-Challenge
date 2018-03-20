@@ -17,8 +17,12 @@ final class MovieListViewModel {
     let dataProvider: DataProvider
     let favouriteStore: UserDefaults
 
-    let movies: BehaviorRelay<[Movie]> = BehaviorRelay(value: [])
     let titleLocalizedStringKey: BehaviorRelay<String> = BehaviorRelay(value: "popular_movie_list_title")
+
+    let movies: BehaviorRelay<[Movie]> = BehaviorRelay(value: [])
+    let canLoadMorePages: BehaviorRelay<Bool> = BehaviorRelay(value: true)
+
+    private var currentPage = 1
 
     init(dataProvider: DataProvider = URLSession.shared, favouriteStore: UserDefaults = .standard) {
         self.dataProvider = dataProvider
@@ -28,12 +32,16 @@ final class MovieListViewModel {
     func fetchNextPage() {
 
         dataProvider
-            .fetchData(fromURL: .popularMovies(forPage: 1))
+            .fetchData(fromURL: .popularMovies(forPage: currentPage))
             .convert(to: APIResult<Movie>.self)
             .observeOn(MainScheduler.instance) //UI triggers are based off of the creditReport relay so move back to main thread here
             .subscribe(onNext: { [unowned self] result in
                 let allMovies = self.movies.value + result.results
                 self.movies.accept(allMovies)
+
+                self.currentPage = result.page + 1
+
+                self.canLoadMorePages.accept(self.currentPage < result.totalPages)
             })
             .disposed(by: disposeBag)
     }
