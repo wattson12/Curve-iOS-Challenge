@@ -11,23 +11,36 @@ import Kingfisher
 
 class MovieDetailViewController: BaseViewController {
 
+    let backgroundView: UIView = {
+        let backgroundView = UIView()
+        backgroundView.backgroundColor = UIColor(red: 0.255, green: 0.255, blue: 0.255, alpha: 1)
+        return backgroundView
+    }()
+
     let imageView: UIImageView = {
         let imageView = UIImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.layer.borderColor = UIColor.white.cgColor
+        imageView.layer.borderWidth = 5
         return imageView
     }()
 
     override func loadView() {
-        self.view = UIView()
+        self.view = backgroundView
 
         self.view.addSubview(imageView)
 
-        //pinned to within bounds of view
+        //keep centered within view, while preserving aspect ratio
         NSLayoutConstraint.activate([
-            imageView.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor, constant: 10),
-            imageView.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor, constant: -10),
-            imageView.bottomAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.bottomAnchor, constant: -10),
-            imageView.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor, constant: 10)
+            imageView.centerXAnchor.constraint(equalTo: backgroundView.safeAreaLayoutGuide.centerXAnchor),
+            imageView.centerYAnchor.constraint(equalTo: backgroundView.safeAreaLayoutGuide.centerYAnchor),
+
+            imageView.topAnchor.constraint(greaterThanOrEqualTo: backgroundView.safeAreaLayoutGuide.topAnchor, constant: 10),
+            imageView.trailingAnchor.constraint(lessThanOrEqualTo: backgroundView.safeAreaLayoutGuide.trailingAnchor, constant: -10),
+            imageView.bottomAnchor.constraint(lessThanOrEqualTo: backgroundView.safeAreaLayoutGuide.bottomAnchor, constant: -10),
+            imageView.leadingAnchor.constraint(greaterThanOrEqualTo: backgroundView.safeAreaLayoutGuide.leadingAnchor, constant: 10),
+
+            imageView.widthAnchor.constraint(equalTo: imageView.heightAnchor, multiplier: 2 / 3).withPriority(.required)
         ])
     }
 

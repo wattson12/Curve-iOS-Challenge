@@ -23,6 +23,13 @@ extension UIColor { //TODO: remove
 
 final class MovieListViewController: BaseViewController {
 
+    weak private var coordinationDelegate: MovieListViewControllerCoordinationDelegate?
+
+    init(coordinationDelegate: MovieListViewControllerCoordinationDelegate) {
+        self.coordinationDelegate = coordinationDelegate
+        super.init()
+    }
+
     let tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .plain)
         tableView.registerReusableCell(MovieTableViewCell.self)
@@ -38,10 +45,11 @@ final class MovieListViewController: BaseViewController {
         super.viewDidLoad()
 
         tableView.dataSource = self
+        tableView.delegate = self
     }
 }
 
-extension MovieListViewController: UITableViewDataSource {
+extension MovieListViewController: UITableViewDataSource, UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return 1
@@ -62,5 +70,11 @@ extension MovieListViewController: UITableViewDataSource {
         cell.viewState = viewState
 
         return cell
+    }
+
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+
+        coordinationDelegate?.didSelect(movie: "test", atIndexPath: indexPath)
     }
 }
