@@ -30,6 +30,8 @@
 		2207C0DF20615E520003D828 /* APIResultTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2207C0DE20615E520003D828 /* APIResultTests.swift */; };
 		2207C0E220615F550003D828 /* URL+Construction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2207C0E120615F550003D828 /* URL+Construction.swift */; };
 		2207C0E42061605B0003D828 /* Observable+Conversion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2207C0E32061605B0003D828 /* Observable+Conversion.swift */; };
+		2207C0E72061636C0003D828 /* URL+ConstructionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2207C0E62061636C0003D828 /* URL+ConstructionTests.swift */; };
+		2207C0E9206164280003D828 /* Observable+ConversionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2207C0E8206164280003D828 /* Observable+ConversionTests.swift */; };
 		353EA1C7CE24C67B1CB1233B /* Pods_CurveChallengeUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1500245A830CD74B2A5B94BB /* Pods_CurveChallengeUITests.framework */; };
 		4D71FE77A8A4FB4150297F40 /* Pods_CurveChallenge.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 56192C4C222E05B9317B5A44 /* Pods_CurveChallenge.framework */; };
 		5732ADA61111C33AA960EDA7 /* Pods_CurveChallengeTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AD85604AF82645BD971DC327 /* Pods_CurveChallengeTests.framework */; };
@@ -83,6 +85,8 @@
 		2207C0DE20615E520003D828 /* APIResultTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIResultTests.swift; sourceTree = "<group>"; };
 		2207C0E120615F550003D828 /* URL+Construction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "URL+Construction.swift"; sourceTree = "<group>"; };
 		2207C0E32061605B0003D828 /* Observable+Conversion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Observable+Conversion.swift"; sourceTree = "<group>"; };
+		2207C0E62061636C0003D828 /* URL+ConstructionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "URL+ConstructionTests.swift"; sourceTree = "<group>"; };
+		2207C0E8206164280003D828 /* Observable+ConversionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Observable+ConversionTests.swift"; sourceTree = "<group>"; };
 		2ACE8A2758DC05D5127A3278 /* Pods-CurveChallengeUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CurveChallengeUITests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-CurveChallengeUITests/Pods-CurveChallengeUITests.debug.xcconfig"; sourceTree = "<group>"; };
 		449BD4873487F8D65F8CEB2B /* Pods-CurveChallengeTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CurveChallengeTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-CurveChallengeTests/Pods-CurveChallengeTests.release.xcconfig"; sourceTree = "<group>"; };
 		463E5B4080D038E0EEA17709 /* Pods-CurveChallengeTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CurveChallengeTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-CurveChallengeTests/Pods-CurveChallengeTests.debug.xcconfig"; sourceTree = "<group>"; };
@@ -176,6 +180,7 @@
 			isa = PBXGroup;
 			children = (
 				2207C0D320615B2E0003D828 /* Test Helpers and Fixtures */,
+				2207C0E5206163580003D828 /* API */,
 				2207C0D020615B1D0003D828 /* Model */,
 				2207C09D206148EE0003D828 /* CurveChallengeTests.swift */,
 				2207C09F206148EE0003D828 /* Info.plist */,
@@ -279,6 +284,15 @@
 			children = (
 				2207C0E120615F550003D828 /* URL+Construction.swift */,
 				2207C0E32061605B0003D828 /* Observable+Conversion.swift */,
+			);
+			path = API;
+			sourceTree = "<group>";
+		};
+		2207C0E5206163580003D828 /* API */ = {
+			isa = PBXGroup;
+			children = (
+				2207C0E62061636C0003D828 /* URL+ConstructionTests.swift */,
+				2207C0E8206164280003D828 /* Observable+ConversionTests.swift */,
 			);
 			path = API;
 			sourceTree = "<group>";
@@ -631,6 +645,8 @@
 				2207C0D920615B6F0003D828 /* TestFixtureHelpers.swift in Sources */,
 				2207C09E206148EE0003D828 /* CurveChallengeTests.swift in Sources */,
 				2207C0DF20615E520003D828 /* APIResultTests.swift in Sources */,
+				2207C0E9206164280003D828 /* Observable+ConversionTests.swift in Sources */,
+				2207C0E72061636C0003D828 /* URL+ConstructionTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -12,8 +12,8 @@ private let movieDBAPIKey = "bac74eeba9b1cb0b0869b42a7647e79f"
 
 extension URL {
 
-    static func popularMovies(forPage page: Int) -> URL {
-        guard let url = URL(string: "https://api.themoviedb.org/3/movie/popular?api_key=\(movieDBAPIKey)&page=\(page)") else {
+    static func popularMovies(forPage page: Int, apiKey: String = movieDBAPIKey) -> URL {
+        guard let url = URL(string: "https://api.themoviedb.org/3/movie/popular?api_key=\(apiKey)&page=\(page)") else {
             fatalError("Unable to create popular movie URL")
         }
 
