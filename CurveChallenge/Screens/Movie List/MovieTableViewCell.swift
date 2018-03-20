@@ -7,8 +7,11 @@
 //
 
 import UIKit
+import RxSwift
 
 final class MovieTableViewCell: UITableViewCell {
+
+    private(set) var disposeBag: DisposeBag = DisposeBag()
 
     struct ViewState {
         let imageURL: URL?
@@ -119,6 +122,7 @@ final class MovieTableViewCell: UITableViewCell {
         super.prepareForReuse()
 
         viewState = nil
+        disposeBag = DisposeBag() //reset this to clear any observers
     }
 
     var viewState: ViewState? {

@@ -61,16 +61,21 @@ final class MovieListViewController: BaseViewController {
 
         viewModel
             .movies.asObservable()
-            .bind(to: tableView.rx.items(cellIdentifier: MovieTableViewCell.reuseIdentifier)) { (_, movie: Movie, cell: MovieTableViewCell) in
+            .bind(to: tableView.rx.items(cellIdentifier: MovieTableViewCell.reuseIdentifier)) { [unowned self] (_, movie: Movie, cell: MovieTableViewCell) in
                 let viewState = MovieTableViewCell.ViewState(
                     imageURL: URL.poster(withPath: movie.posterPath),
                     name: movie.originalTitle,
                     date: movie.releaseDate.description,
-                    favourited: false,
+                    favourited: self.viewModel.isMovieFavourited(movie),
                     overview: movie.overview,
                     rating: NSAttributedString(string: movie.voteAverage.description, attributes: [.foregroundColor: UIColor.red])
                 )
                 cell.viewState = viewState
+
+                //add binding for buttons
+                cell.favouriteButton.rx.tap.subscribe(onNext: {
+                    self.viewModel.toggleFavourite(forMovie: movie)
+                }).disposed(by: cell.disposeBag)
             }
             .disposed(by: disposeBag)
 
