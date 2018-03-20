@@ -8,8 +8,19 @@
 
 import UIKit
 import Kingfisher
+import RxSwift
+import RxCocoa
 
-class MovieDetailViewController: BaseViewController {
+final class MovieDetailViewModel {
+
+    let movie: BehaviorRelay<Movie>
+
+    init(movie: Movie) {
+        self.movie = BehaviorRelay(value: movie)
+    }
+}
+
+final class MovieDetailViewController: BaseViewController {
 
     let backgroundView: UIView = {
         let backgroundView = UIView()
@@ -24,6 +35,13 @@ class MovieDetailViewController: BaseViewController {
         imageView.layer.borderWidth = 5
         return imageView
     }()
+
+    private let viewModel: MovieDetailViewModel
+
+    init(viewModel: MovieDetailViewModel) {
+        self.viewModel = viewModel
+        super.init()
+    }
 
     override func loadView() {
         self.view = backgroundView
@@ -47,6 +65,23 @@ class MovieDetailViewController: BaseViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        imageView.kf.setImage(with: URL(string: "https://image.tmdb.org/t/p/w500//sM33SANp9z6rXW8Itn7NnG1GOEs.jpg"))
+        setupBindings()
+    }
+
+    private func setupBindings() {
+
+        viewModel
+            .movie.asObservable()
+            .map { $0.originalTitle }
+            .bind(to: self.navigationItem.rx.title)
+            .disposed(by: disposeBag)
+
+        viewModel
+            .movie.asObservable()
+            .map { URL.poster(withPath: $0.posterPath) }
+            .subscribe(onNext: { [unowned self] posterURL in
+                self.imageView.kf.setImage(with: posterURL)
+            })
+            .disposed(by: disposeBag)
     }
 }

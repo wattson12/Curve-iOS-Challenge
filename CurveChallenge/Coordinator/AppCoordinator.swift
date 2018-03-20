@@ -39,7 +39,7 @@ protocol MovieListViewControllerCoordinationDelegate: class {
 extension AppCoordinator: MovieListViewControllerCoordinationDelegate {
 
     func didSelect(movie: Movie, atIndexPath indexPath: IndexPath) {
-        let movieDetailViewController = MovieDetailViewController()
+        let movieDetailViewController = MovieDetailViewController(viewModel: MovieDetailViewModel(movie: movie))
         navigationController?.pushViewController(movieDetailViewController, animated: true)
     }
 }
