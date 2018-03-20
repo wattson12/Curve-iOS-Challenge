@@ -8,7 +8,7 @@
 
 import UIKit
 
-//Protocol to simplify registering and dequeuing table view cells
+//Protocol to simplify registering table view cells
 protocol Reusable {
     static var reuseIdentifier: String { get }
 }
@@ -21,18 +21,10 @@ extension UITableViewCell: Reusable {
     }
 }
 
-//and some helpers for register + dequeue
+//and some helpers for registering (dequeue not required since rx handles that)
 extension UITableView {
 
     func registerReusableCell<Cell: UITableViewCell>(_ cellType: Cell.Type) {
         self.register(cellType, forCellReuseIdentifier: cellType.reuseIdentifier)
-    }
-
-    func dequeueReusableCell<Cell: UITableViewCell>(_ cellType: Cell.Type, forIndexPath indexPath: IndexPath) -> Cell {
-        guard let cell = self.dequeueReusableCell(withIdentifier: cellType.reuseIdentifier, for: indexPath) as? Cell else {
-            fatalError("Unable to dequeue cell of type \(cellType) for indexPath: \(indexPath)") //give a more meaningful error than force cast
-        }
-
-        return cell
     }
 }

@@ -25,5 +25,11 @@ class MovieTests: XCTestCase {
             XCTFail("Unexpected error mapping movie: \(error)")
         }
     }
-    
+
+    func testEqualityChecksIdentifier() {
+        let movieA = Movie(identifier: 1, originalTitle: "title", releaseDate: Date(), posterPath: "path", overview: "overview", voteAverage: 12)
+        let movieB = Movie(identifier: 1, originalTitle: "different title", releaseDate: Date(timeIntervalSince1970: 0), posterPath: "different path", overview: "different overview", voteAverage: 1223)
+
+        XCTAssertEqual(movieA, movieB)
+    }
 }
