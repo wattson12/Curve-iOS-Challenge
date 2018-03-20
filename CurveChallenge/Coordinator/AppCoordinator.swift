@@ -17,7 +17,7 @@ final class AppCoordinator {
     }
 
     func start() {
-        let rootViewController = UIViewController()
+        let rootViewController = MovieListViewController()
         let rootNavigationController = UINavigationController(rootViewController: rootViewController)
 
         window.rootViewController = rootNavigationController
