@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import Kingfisher
 
 extension UIColor { //TODO: remove
 
@@ -78,7 +79,6 @@ final class MovieTableViewCell: UITableViewCell {
     let movieImageView: UIImageView = {
         let movieImageView = UIImageView()
         movieImageView.translatesAutoresizingMaskIntoConstraints = false
-        movieImageView.mark()
         return movieImageView
     }()
 
@@ -178,7 +178,7 @@ final class MovieTableViewCell: UITableViewCell {
     }
 
     private func reset() {
-        //        movieImageView //TODO: reset
+        movieImageView.kf.setImage(with: nil)
         nameLabel.text = nil
         dateLabel.text = nil
         favouriteButton.backgroundColor = .red
@@ -187,7 +187,7 @@ final class MovieTableViewCell: UITableViewCell {
     }
 
     private func updateContents(withViewState viewState: ViewState) {
-        //        movieImageView //TODO: load image
+        movieImageView.kf.setImage(with: viewState.imageURL)
         nameLabel.text = viewState.name
         dateLabel.text = viewState.date
         favouriteButton.backgroundColor = viewState.favourited ? .green : .red
@@ -226,7 +226,7 @@ extension MovieListViewController: UITableViewDataSource {
         let cell = tableView.dequeueReusableCell(MovieTableViewCell.self, forIndexPath: indexPath)
 
         let viewState = MovieTableViewCell.ViewState(
-            imageURL: nil,
+            imageURL: URL(string: "https://image.tmdb.org/t/p/w500//sM33SANp9z6rXW8Itn7NnG1GOEs.jpg"),
             name: "Zootopia",
             date: "2016-02-11",
             favourited: true,

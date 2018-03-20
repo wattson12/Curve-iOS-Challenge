@@ -13,6 +13,9 @@ target 'CurveChallenge' do
   #linting is run via a run script build phase
   pod 'SwiftLint'
 
+  #image caching helpers
+  pod 'Kingfisher', '~> 4.0'
+
   target 'CurveChallengeTests' do
     inherit! :search_paths
   end
