@@ -23,46 +23,6 @@ extension UIColor { //TODO: remove
     }
 }
 
-//this is an abstraction around URLSession which will help testing view models
-protocol DataProvider {
-    func fetchData(fromURL url: URL) -> Observable<Data>
-}
-
-//URLSession is the easiest way, build on existing Rx extensions to add conformance
-extension URLSession: DataProvider {
-
-    func fetchData(fromURL url: URL) -> Observable<Data> {
-        return self.rx.data(request: URLRequest(url: url))
-    }
-}
-
-final class MovieListViewModel {
-
-    let disposeBag = DisposeBag()
-
-    let dataProvider: DataProvider
-
-    let movies: BehaviorRelay<[Movie]> = BehaviorRelay(value: [])
-    let titleLocalizedStringKey: BehaviorRelay<String> = BehaviorRelay(value: "popular_movie_list_title")
-
-    init(dataProvider: DataProvider = URLSession.shared) {
-        self.dataProvider = dataProvider
-    }
-
-    func fetchNextPage() {
-
-        dataProvider
-            .fetchData(fromURL: .popularMovies(forPage: 1))
-            .convert(to: APIResult<Movie>.self)
-            .observeOn(MainScheduler.instance) //UI triggers are based off of the creditReport relay so move back to main thread here
-            .subscribe(onNext: { [unowned self] result in
-                let allMovies = self.movies.value + result.results
-                self.movies.accept(allMovies)
-            })
-            .disposed(by: disposeBag)
-    }
-}
-
 final class MovieListViewController: BaseViewController {
 
     private let viewModel: MovieListViewModel
